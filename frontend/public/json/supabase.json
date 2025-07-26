@@ -1,0 +1,60 @@
+{
+  "name": "Supabase",
+  "slug": "supabase",
+  "categories": [
+    8
+  ],
+  "date_created": "2025-01-26",
+  "type": "ct",
+  "updateable": true,
+  "privileged": false,
+  "interface_port": 8000,
+  "documentation": "https://supabase.com/docs/guides/self-hosting",
+  "website": "https://supabase.com/",
+  "logo": "https://cdn.jsdelivr.net/gh/selfhst/icons/webp/supabase.webp",
+  "config_path": "/opt/supabase/.env",
+  "description": "Supabase is an open-source Firebase alternative that provides a complete backend-as-a-service solution. It includes a PostgreSQL database, authentication, real-time subscriptions, auto-generated APIs, edge functions, and file storage. Built with developer experience in mind, Supabase offers a powerful SQL database with PostgREST API, real-time functionality, and a user-friendly dashboard for managing your backend infrastructure.",
+  "install_methods": [
+    {
+      "type": "default",
+      "script": "ct/supabase.sh",
+      "resources": {
+        "cpu": 4,
+        "ram": 4096,
+        "hdd": 20,
+        "os": "debian",
+        "version": "12"
+      }
+    }
+  ],
+  "default_credentials": {
+    "username": "supabase",
+    "password": "this_password_is_insecure_and_should_be_updated"
+  },
+  "notes": [
+    {
+      "text": "Default dashboard credentials are automatically generated during installation. Check /root/supabase-credentials.txt for your unique credentials.",
+      "type": "warning"
+    },
+    {
+      "text": "Change the default dashboard password immediately after first login for security.",
+      "type": "warning"
+    },
+    {
+      "text": "Configure SMTP settings in /opt/supabase/.env to enable email functionality for authentication.",
+      "type": "info"
+    },
+    {
+      "text": "Use 'supabase-manage' command for common operations: start, stop, restart, status, logs, update, backup.",
+      "type": "info"
+    },
+    {
+      "text": "Database connections: Port 5432 (direct), Port 6543 (pooled via Supavisor).",
+      "type": "info"
+    },
+    {
+      "text": "Requires minimum 4GB RAM and 4 CPU cores for optimal performance with all services.",
+      "type": "info"
+    }
+  ]
+}
