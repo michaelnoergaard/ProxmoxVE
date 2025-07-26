@@ -75,9 +75,29 @@ perl -i -pe "s/your-super-secret-jwt-token-with-at-least-32-characters-long/\Q$J
 perl -i -pe "s/this_password_is_insecure_and_should_be_updated/\Q$DASHBOARD_PASSWORD\E/g" .env
 
 # Set the site URL to the container IP
-CONTAINER_IP=$(get_current_ip)
-sed -i "s|http://localhost:3000|http://$CONTAINER_IP:8000|g" .env
-sed -i "s|localhost|$CONTAINER_IP|g" .env
+# Get container IP address - try multiple methods
+if command -v hostname >/dev/null 2>&1; then
+  CONTAINER_IP=$(hostname -I | awk '{print $1}' 2>/dev/null)
+fi
+
+# Fallback methods if hostname -I fails
+if [ -z "$CONTAINER_IP" ] || [ "$CONTAINER_IP" = "" ]; then
+  CONTAINER_IP=$(ip -4 addr show eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | head -n 1)
+fi
+
+# Second fallback
+if [ -z "$CONTAINER_IP" ] || [ "$CONTAINER_IP" = "" ]; then
+  CONTAINER_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}')
+fi
+
+# Final fallback to localhost if all methods fail
+if [ -z "$CONTAINER_IP" ] || [ "$CONTAINER_IP" = "" ]; then
+  CONTAINER_IP="localhost"
+fi
+
+# Update .env file with container IP
+perl -i -pe "s|http://localhost:3000|http://\Q$CONTAINER_IP\E:8000|g" .env
+perl -i -pe "s/(?<!:\/\/)localhost(?!\.|:)/\Q$CONTAINER_IP\E/g" .env
 
 msg_ok "Secure secrets generated"
 
