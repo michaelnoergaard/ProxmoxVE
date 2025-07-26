@@ -21,7 +21,8 @@ $STD apt-get install -y \
   git \
   ca-certificates \
   gnupg \
-  lsb-release
+  lsb-release \
+  perl
 msg_ok "Installed Dependencies"
 
 get_latest_release() {
@@ -63,17 +64,15 @@ rm -rf temp-repo
 msg_ok "Supabase files configured"
 
 msg_info "Generating secure secrets"
-# Generate a secure JWT secret (64 characters)
-JWT_SECRET=$(openssl rand -base64 64 | tr -d '\n' | head -c 64)
+# Generate secure passwords using alphanumeric characters only to avoid sed issues
+JWT_SECRET=$(openssl rand -hex 32)
+POSTGRES_PASSWORD=$(openssl rand -hex 16) 
+DASHBOARD_PASSWORD=$(openssl rand -hex 12)
 
-# Generate secure passwords
-POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '\n')
-DASHBOARD_PASSWORD=$(openssl rand -base64 16 | tr -d '\n')
-
-# Update .env file with secure values
-sed -i "s/your-super-secret-and-long-postgres-password/$POSTGRES_PASSWORD/g" .env
-sed -i "s/your-super-secret-jwt-token-with-at-least-32-characters-long/$JWT_SECRET/g" .env
-sed -i "s/this_password_is_insecure_and_should_be_updated/$DASHBOARD_PASSWORD/g" .env
+# Update .env file with secure values using perl for safer replacement
+perl -i -pe "s/your-super-secret-and-long-postgres-password/\Q$POSTGRES_PASSWORD\E/g" .env
+perl -i -pe "s/your-super-secret-jwt-token-with-at-least-32-characters-long/\Q$JWT_SECRET\E/g" .env
+perl -i -pe "s/this_password_is_insecure_and_should_be_updated/\Q$DASHBOARD_PASSWORD\E/g" .env
 
 # Set the site URL to the container IP
 CONTAINER_IP=$(get_current_ip)
